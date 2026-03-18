@@ -93,8 +93,16 @@
       background: radial-gradient(ellipse at center, #1a0f2e 0%, #0d0618 100%);
       position: relative;
     }
-    .map-inner { position: relative; display: inline-block; user-select: none; }
-    .map-inner img { display: block; max-height: calc(100vh - 60px); max-width: 100%; }
+    .map-inner { 
+      position: relative; display: inline-block; user-select: none;
+      /* La imagen ocupa todo el alto disponible */
+      height: calc(100vh - 60px);
+    }
+    .map-inner img { 
+      display: block; 
+      height: 100%;
+      width: auto;
+    }
 
     /* Dots */
     .dot {
@@ -351,11 +359,8 @@
 // ══════════════════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════════════════
-// En Netlify usa el proxy seguro. En local (file:// o localhost)
-// llama directo a tu sitio en Netlify. Cambiá NETLIFY_URL por tu URL real.
-const NETLIFY_URL = "https://TU-SITIO.netlify.app"; // ← cambiá esto
-const isLocal = location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
-const API_URL  = isLocal ? NETLIFY_URL + "/api/sheet" : "/api/sheet";
+// URL directa a la función Netlify (sin redirect)
+const API_URL = "/.netlify/functions/sheet";
 
 // ══════════════════════════════════════════════════════════════
 // DOT POSITIONS (px en imagen original 1440×959)
@@ -426,7 +431,9 @@ let charts = [];
 // ══════════════════════════════════════════════════════════════
 function getScale() {
   const img = document.getElementById("map-img");
-  return { sx: img.offsetWidth / IMG_W, sy: img.offsetHeight / IMG_H };
+  const sx = img.offsetWidth / IMG_W;
+  const sy = img.offsetHeight / IMG_H;
+  return { sx, sy };
 }
 function positionDot(el, d) {
   const { sx, sy } = getScale();
