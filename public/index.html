@@ -458,14 +458,35 @@ function buildDots() {
     });
   });
 }
-const mapImg = document.getElementById("map-img");
-if (mapImg.complete) buildDots(); else mapImg.onload = buildDots;
-window.addEventListener("resize", () => {
-  DEPTS.forEach(d => { if (dotEls[d.nombre]) positionDot(dotEls[d.nombre], d); });
-});
-document.getElementById("map-inner").addEventListener("click", e => {
-  if (e.target === mapImg) { deselectDept(); }
-});
+function initMap() {
+  const mapImg = document.getElementById("map-img");
+  if (!mapImg) { console.error("map-img no encontrado"); return; }
+  
+  // Build dots once image dimensions are known
+  function tryBuildDots() {
+    if (mapImg.offsetWidth > 0) {
+      buildDots();
+    } else if (mapImg.complete) {
+      // image loaded but not painted yet, wait a frame
+      requestAnimationFrame(() => {
+        if (mapImg.offsetWidth > 0) buildDots();
+        else setTimeout(buildDots, 100);
+      });
+    } else {
+      mapImg.onload = () => requestAnimationFrame(buildDots);
+    }
+  }
+  tryBuildDots();
+
+  window.addEventListener("resize", () => {
+    DEPTS.forEach(d => { if (dotEls[d.nombre]) positionDot(dotEls[d.nombre], d); });
+  });
+  document.getElementById("map-inner").addEventListener("click", e => {
+    if (e.target === mapImg) { deselectDept(); }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initMap);
 
 // ══════════════════════════════════════════════════════════════
 // LOAD DATA FROM API
@@ -503,10 +524,18 @@ async function loadData() {
   }
 }
 
+function normalizeDept(d) {
+  if (!d) return d;
+  d = d.trim();
+  // normalizar variantes conocidas
+  if (d === "Taboada") return "General Taboada";
+  return d;
+}
+
 function buildIndex() {
   byDept = {};
   allRows.forEach(r => {
-    const d = r["Departamento"]?.trim();
+    const d = normalizeDept(r["Departamento"]);
     if (!d) return;
     if (!byDept[d]) byDept[d] = [];
     byDept[d].push(r);
@@ -887,7 +916,7 @@ function buildCharts(rows) {
 // ══════════════════════════════════════════════════════════════
 // INIT — load data on page open
 // ══════════════════════════════════════════════════════════════
-loadData();
+document.addEventListener("DOMContentLoaded", loadData);
 </script>
 </body>
 </html>
