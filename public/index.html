@@ -532,8 +532,7 @@ async function loadData() {
     badge.className = "badge error";
     badge.textContent = "✕ Error";
     console.error("loadData:", err);
-    alert("No se pudo cargar el Sheet:
-" + err.message);
+    alert("No se pudo cargar el Sheet: " + err.message);
   } finally {
     btn.disabled = false;
   }
