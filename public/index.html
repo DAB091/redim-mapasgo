@@ -289,23 +289,19 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   /* ═══════════════════════════════════════════════
-     RESPONSIVE — portrait mobile
+     RESPONSIVE — mobile
   ═══════════════════════════════════════════════ */
-  @media (max-width: 700px) {
 
-    /* Permitir scroll vertical en mobile */
+  /* ── Portrait (pantalla angosta) ── */
+  @media (max-width: 700px) and (orientation: portrait) {
+
     html, body {
       height: auto !important;
-      min-height: 100%;
       overflow-x: hidden;
       overflow-y: auto;
     }
 
-    /* Header más compacto */
-    header {
-      padding: 8px 12px;
-      gap: 8px;
-    }
+    header { padding: 8px 12px; gap: 8px; }
     .brand-text h1 { font-size: .9rem; }
     .brand-text p  { display: none; }
     .logo-wrap     { width: 28px; height: 28px; font-size: .8rem; }
@@ -313,65 +309,99 @@
     .btn-refresh   { font-size: .62rem; padding: 5px 8px; }
     #badge         { font-size: .6rem; }
 
-    /* Layout vertical: mapa arriba, panel abajo */
+    /* Apilar verticalmente */
     .main {
       flex-direction: column;
-      overflow-y: auto;
-      overflow-x: hidden;
-      height: auto;           /* let it grow with content */
+      height: auto;
+      overflow: visible;
     }
 
-    /* Mapa: map-inner envuelve exactamente la imagen */
+    /* Mapa: ocupa el ancho completo, altura proporcional */
     .map-wrap {
       flex: none;
       width: 100%;
       height: auto;
-      min-height: 180px;
-      overflow: hidden;
-      padding: 8px 0;
+      overflow: visible;
+      padding: 6px;
+      justify-content: flex-start;
     }
     .map-inner {
-      display: inline-block;  /* se ajusta al tamaño de la imagen */
+      display: inline-block;
       position: relative;
     }
     .map-inner img {
-      max-height: 55vw;
-      max-width: 100vw;
-      width: auto;
+      width: 100%;
       height: auto;
+      max-height: none;
+      max-width: 100%;
       display: block;
     }
 
-    /* Panel derecho ocupa el ancho completo */
+    /* Panel abajo, ancho completo */
     #right-panel {
       width: 100%;
-      flex: 1;
+      flex: none;
       border-left: none;
       border-top: 1px solid var(--border);
-      min-height: 0;
+      min-height: 400px;
       overflow-y: auto;
     }
 
-    /* Tabs más pequeños */
     .tab-btn { font-size: .62rem; padding: 6px 4px; }
-
-    /* Charts más chicos */
-    canvas { max-height: 160px !important; }
-
-    /* Empty state más compacto en mobile */
-    .empty-state { padding: 16px; gap: 8px; }
-    .empty-state .ico { font-size: 1.8rem; }
-    .empty-state p { font-size: .8rem; }
-
-    /* Stats globales en 2 columnas */
+    canvas   { max-height: 160px !important; }
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
     .stat-card  { padding: 8px; }
     .stat-val   { font-size: 1.1rem; }
+    .empty-state { padding: 16px; gap: 8px; }
+    .empty-state .ico { font-size: 1.8rem; }
+    .empty-state p { font-size: .8rem; }
   }
 
-  @media (max-width: 400px) {
-    .map-wrap { height: 60vw; }
-    .tab-btn  { font-size: .56rem; padding: 5px 2px; }
+  /* ── Landscape mobile (pantalla ancha pero baja) ── */
+  @media (max-width: 900px) and (orientation: landscape) {
+
+    html, body {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header { padding: 6px 12px; }
+    .brand-text p { display: none; }
+
+    /* Mantener layout horizontal pero ajustar tamaños */
+    .main {
+      flex-direction: row;
+      height: calc(100vh - 48px);
+      overflow: hidden;
+    }
+
+    /* Mapa scrolleable horizontalmente si es necesario */
+    .map-wrap {
+      flex: 1;
+      overflow: auto;       /* permite scroll si el mapa no entra */
+      align-items: flex-start;
+      justify-content: center;
+      padding: 4px;
+    }
+    .map-inner {
+      display: inline-block;
+      position: relative;
+    }
+    .map-inner img {
+      height: calc(100vh - 60px);
+      width: auto;
+      max-width: none;      /* permite que sea más ancha que el contenedor */
+      display: block;
+    }
+
+    /* Panel lateral más angosto */
+    #right-panel {
+      width: 280px;
+      overflow-y: auto;
+    }
+
+    .tab-btn  { font-size: .6rem; padding: 5px 3px; }
+    canvas    { max-height: 130px !important; }
   }
 </style>
 </head>
