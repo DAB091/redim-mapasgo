@@ -33,6 +33,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      /* mobile override below in @media */
     }
 
     /* ═══ HEADER ═══ */
@@ -292,6 +293,14 @@
   ═══════════════════════════════════════════════ */
   @media (max-width: 700px) {
 
+    /* Permitir scroll vertical en mobile */
+    html, body {
+      height: auto !important;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
     /* Header más compacto */
     header {
       padding: 8px 12px;
@@ -307,29 +316,30 @@
     /* Layout vertical: mapa arriba, panel abajo */
     .main {
       flex-direction: column;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: auto;           /* let it grow with content */
     }
 
-    /* Mapa ocupa el alto necesario */
+    /* Mapa: map-inner envuelve exactamente la imagen */
     .map-wrap {
       flex: none;
       width: 100%;
-      height: 52vw;          /* proporcional al ancho */
-      min-height: 200px;
+      height: auto;
+      min-height: 180px;
       overflow: hidden;
+      padding: 8px 0;
     }
     .map-inner {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;  /* se ajusta al tamaño de la imagen */
+      position: relative;
     }
     .map-inner img {
-      max-height: 100%;
-      max-width: 100%;
+      max-height: 55vw;
+      max-width: 100vw;
       width: auto;
       height: auto;
+      display: block;
     }
 
     /* Panel derecho ocupa el ancho completo */
@@ -347,6 +357,11 @@
 
     /* Charts más chicos */
     canvas { max-height: 160px !important; }
+
+    /* Empty state más compacto en mobile */
+    .empty-state { padding: 16px; gap: 8px; }
+    .empty-state .ico { font-size: 1.8rem; }
+    .empty-state p { font-size: .8rem; }
 
     /* Stats globales en 2 columnas */
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -418,7 +433,7 @@
     <!-- Content -->
     <div class="panel-body" id="panel-body">
       <div class="empty-state" id="empty-state">
-        <div class="ico">📍</div>
+        <div class="ico">🗺️</div>
         <p>Seleccioná un departamento<br>en el mapa para ver sus<br>estadísticas detalladas.</p>
       </div>
       <div class="spinner-wrap" id="spinner" style="display:none">
@@ -509,16 +524,23 @@ let charts = [];
 // ══════════════════════════════════════════════════════════════
 function getScale() {
   const img = document.getElementById("map-img");
-  // getBoundingClientRect is the most reliable way to get rendered size
-  const rect = img.getBoundingClientRect();
-  const sx = rect.width / IMG_W;
-  const sy = rect.height / IMG_H;
-  return { sx, sy };
+  // Use offsetWidth/Height — this is the actual layout size
+  // consistent with the coordinate system of position:absolute children
+  return {
+    sx: img.offsetWidth  / IMG_W,
+    sy: img.offsetHeight / IMG_H
+  };
 }
 function positionDot(el, d) {
-  const { sx, sy } = getScale();
-  el.style.left = d.x * sx + "px";
-  el.style.top  = d.y * sy + "px";
+  const img = document.getElementById("map-img");
+  // img.offsetLeft/Top = position of img within map-inner (its offsetParent)
+  // This is scroll-independent and always correct
+  const offX = img.offsetLeft;
+  const offY = img.offsetTop;
+  const sx = img.offsetWidth  / IMG_W;
+  const sy = img.offsetHeight / IMG_H;
+  el.style.left = (offX + d.x * sx) + "px";
+  el.style.top  = (offY + d.y * sy) + "px";
 }
 function buildDots() {
   const mapInner = document.getElementById("map-inner");
