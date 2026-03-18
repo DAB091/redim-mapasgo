@@ -95,15 +95,16 @@
     }
     .map-inner { 
       position: relative; 
-      display: block;
+      display: inline-block;
       user-select: none;
     }
     .map-inner img { 
       display: block; 
-      max-height: calc(100vh - 70px);
-      max-width: calc(100vw - 380px);
+      max-height: calc(100vh - 60px);
+      max-width: 100%;
       width: auto;
       height: auto;
+      object-fit: contain;
     }
 
     /* Dots */
@@ -483,7 +484,7 @@ function initMap() {
     if (w > 10 && h > 10) {
       buildDots();
     } else if (attempts < 40) {
-      setTimeout(tryBuildDots, 100);
+      setTimeout(tryBuildDots, 300);
     } else {
       console.error("[Redim] timeout esperando dimensiones de imagen");
     }
@@ -500,7 +501,7 @@ function initMap() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initMap);
+initMap();
 
 // ══════════════════════════════════════════════════════════════
 // LOAD DATA FROM API
@@ -930,7 +931,7 @@ function buildCharts(rows) {
 // ══════════════════════════════════════════════════════════════
 // INIT — load data on page open
 // ══════════════════════════════════════════════════════════════
-document.addEventListener("DOMContentLoaded", loadData);
+loadData();
 </script>
 </body>
 </html>
