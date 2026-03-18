@@ -364,6 +364,9 @@
 // ══════════════════════════════════════════════════════════════
 // URL directa a la función Netlify (sin redirect)
 const API_URL = "/.netlify/functions/sheet";
+const VERSION = "v8";
+console.log("=== REDIM", VERSION, "cargando ===");
+console.log("API_URL:", API_URL);
 
 // ══════════════════════════════════════════════════════════════
 // DOT POSITIONS (px en imagen original 1440×959)
@@ -501,7 +504,7 @@ function initMap() {
   });
 }
 
-initMap();
+try { initMap(); } catch(e) { console.error("initMap falló:", e); }
 
 // ══════════════════════════════════════════════════════════════
 // LOAD DATA FROM API
@@ -930,7 +933,7 @@ function buildCharts(rows) {
 // ══════════════════════════════════════════════════════════════
 // INIT — load data on page open
 // ══════════════════════════════════════════════════════════════
-loadData();
+try { loadData(); } catch(e) { console.error("loadData falló:", e); }
 </script>
 </body>
 </html>
