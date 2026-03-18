@@ -94,14 +94,16 @@
       position: relative;
     }
     .map-inner { 
-      position: relative; display: inline-block; user-select: none;
-      /* La imagen ocupa todo el alto disponible */
-      height: calc(100vh - 60px);
+      position: relative; 
+      display: block;
+      user-select: none;
     }
     .map-inner img { 
       display: block; 
-      height: 100%;
+      max-height: calc(100vh - 70px);
+      max-width: calc(100vw - 380px);
       width: auto;
+      height: auto;
     }
 
     /* Dots */
@@ -431,8 +433,10 @@ let charts = [];
 // ══════════════════════════════════════════════════════════════
 function getScale() {
   const img = document.getElementById("map-img");
-  const sx = img.offsetWidth / IMG_W;
-  const sy = img.offsetHeight / IMG_H;
+  // getBoundingClientRect is the most reliable way to get rendered size
+  const rect = img.getBoundingClientRect();
+  const sx = rect.width / IMG_W;
+  const sy = rect.height / IMG_H;
   return { sx, sy };
 }
 function positionDot(el, d) {
@@ -468,22 +472,25 @@ function buildDots() {
 function initMap() {
   const mapImg = document.getElementById("map-img");
   if (!mapImg) { console.error("map-img no encontrado"); return; }
-  
-  // Build dots once image dimensions are known
+
+  let attempts = 0;
   function tryBuildDots() {
-    if (mapImg.offsetWidth > 0) {
+    attempts++;
+    const rect = mapImg.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    console.log("[Redim] dot init attempt", attempts, "| img:", w+"x"+h, "| natural:", mapImg.naturalWidth+"x"+mapImg.naturalHeight);
+    if (w > 10 && h > 10) {
       buildDots();
-    } else if (mapImg.complete) {
-      // image loaded but not painted yet, wait a frame
-      requestAnimationFrame(() => {
-        if (mapImg.offsetWidth > 0) buildDots();
-        else setTimeout(buildDots, 100);
-      });
+    } else if (attempts < 40) {
+      setTimeout(tryBuildDots, 100);
     } else {
-      mapImg.onload = () => requestAnimationFrame(buildDots);
+      console.error("[Redim] timeout esperando dimensiones de imagen");
     }
   }
-  tryBuildDots();
+
+  // Start polling after a small delay to let layout happen
+  setTimeout(tryBuildDots, 100);
 
   window.addEventListener("resize", () => {
     DEPTS.forEach(d => { if (dotEls[d.nombre]) positionDot(dotEls[d.nombre], d); });
